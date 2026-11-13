@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revelação · Desafio de Ideias · Semana da Qualidade 2026</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      background: #0a1f4d;
+      color: #fff;
+    }
+
+    /* ===== STAGE ===== */
+    #stage {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #0a1f4d 0%, #0d2b66 100%);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      background: #0d3b7a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 50;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .header .left {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .header .right {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    /* ===== TEASER ===== */
+    #teaser {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: opacity 0.6s ease, visibility 0.6s;
+    }
+    #teaser.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #teaser h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.25;
+      margin-bottom: 18px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    #teaser .sub {
+      font-size: 16px;
+      color: #7eb3e8;
+      margin-bottom: 28px;
+    }
+    #teaser .line {
+      width: 80px;
+      height: 3px;
+      background: #f5c518;
+      margin-bottom: 32px;
+      border-radius: 2px;
+    }
+    #startBtn {
+      background: linear-gradient(135deg, #f5c518, #e0a800);
+      color: #0a1f4d;
+      border: none;
+      padding: 16px 42px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(245,197,24,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.5px;
+    }
+    #startBtn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(245,197,24,0.55);
+    }
+    #startBtn:active { transform: scale(0.98); }
+
+    /* ===== CURTAINS ===== */
+    .curtain {
+      position: absolute;
+      top: 0;
+      width: 52%;
+      height: 100%;
+      z-index: 40;
+      background: linear-gradient(90deg, #1a0a2e 0%, #3d1558 40%, #5c1d7a 100%);
+      box-shadow: inset -20px 0 40px rgba(0,0,0,0.4);
+      transition: transform 2.2s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .curtain.left {
+      left: 0;
+      background: linear-gradient(90deg, #2a0a3d 0%, #4a1568 50%, #6b1f8a 100%);
+      transform-origin: left center;
+    }
+    .curtain.right {
+      right: 0;
+      background: linear-gradient(270deg, #2a0a3d 0%, #4a1568 50%, #6b1f8a 100%);
+      transform-origin: right center;
+    }
+    /* folds / shine */
+    .curtain::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 28px,
+        rgba(255,255,255,0.04) 28px,
+        rgba(255,255,255,0.04) 32px
+      );
+      pointer-events: none;
+    }
+    .curtain.left.open { transform: translateX(-105%); }
+    .curtain.right.open { transform: translateX(105%); }
+
+    /* ===== CONTENT (images) ===== */
+    #content {
+      position: relative;
+      width: min(92vw, 1100px);
+      height: min(82vh, 780px);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.92);
+      transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+    }
+    #content.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    #content img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      object-fit: contain;
+      display: none;
+    }
+    #content img.active {
+      display: block;
+      animation: popIn 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* ===== CONTROLS ===== */
+    #controls {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 30;
+      display: none;
+      gap: 16px;
+      align-items: center;
+    }
+    #controls.show { display: flex; }
+    .btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 40px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn:hover {
+      background: rgba(255,255,255,0.22);
+      transform: translateY(-2px);
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, #f5c518, #e0a800);
+      color: #0a1f4d;
+      border: none;
+      font-weight: 800;
+    }
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #ffd44a, #f5c518);
+    }
+
+    /* ===== FOOTER NOTE ===== */
+    .footer-note {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      z-index: 5;
+    }
+
+    /* ===== CONFETTI CANVAS ===== */
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="stage">
+    <!-- Header -->
+    <div class="header">
+      <div class="left">SEMANA DA QUALIDADE  2026</div>
+      <div class="right">CARMAK</div>
+    </div>
+
+    <!-- Teaser -->
+    <div id="teaser">
+      <h1>Chegou a hora de revelar<br>os premiados</h1>
+      <div class="sub">Desafio de Ideias · Semana da Qualidade 2026</div>
+      <div class="line"></div>
+      <button id="startBtn">🥁  Revelar agora</button>
+    </div>
+
+    <!-- Curtains -->
+    <div class="curtain left" id="curtainL"></div>
+    <div class="curtain right" id="curtainR"></div>
+
+    <!-- Content images -->
+    <div id="content">
+      <img id="img1" src="10.png" alt="Resultado Oficial - Desafio de Ideias" />
+      <img id="img2" src="Destaque.png" alt="Prêmio Destaque - 1º 2º 3º lugar" />
+    </div>
+
+    <!-- Controls -->
+    <div id="controls">
+      <button class="btn primary" id="nextBtn">Ver 1º, 2º e 3º lugar →</button>
+    </div>
+
+    <div class="footer-note">Qualidade Carmak · Gestão por Indicadores</div>
+  </div>
+
+  <!-- Confetti canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Audio -->
+  <audio id="drumroll" src="drumroll.mp3" preload="auto"></audio>
+
+  <script>
+    // ========== CONFETTI ENGINE (lightweight) ==========
+    const canvas = document.getElementById("confetti-canvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    let animId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function confettiBurst(opts = {}) {
+      const count = opts.count || 180;
+      const colors = opts.colors || ["#f5c518", "#ffffff", "#4a90d9", "#ff6b6b", "#7bed9f", "#a29bfe", "#fd79a8"];
+      const originX = opts.x ?? 0.5;
+      const originY = opts.y ?? 0.4;
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.random() * 360) * (Math.PI / 180);
+        const speed = 6 + Math.random() * 12;
+        particles.push({
+          x: originX * canvas.width,
+          y: originY * canvas.height,
+          vx: Math.cos(angle) * speed * (0.6 + Math.random()),
+          vy: Math.sin(angle) * speed * (0.4 + Math.random()) - 8,
+          size: 6 + Math.random() * 8,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 12,
+          life: 1,
+          decay: 0.008 + Math.random() * 0.01,
+          shape: Math.random() > 0.5 ? "rect" : "circle"
+        });
+      }
+      if (!animId) animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.life > 0);
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.22; // gravity
+        p.vx *= 0.99;
+        p.rotation += p.rotSpeed;
+        p.life -= p.decay;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rotation * Math.PI) / 180);
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.fillStyle = p.color;
+
+        if (p.shape === "rect") {
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      if (particles.length > 0) {
+        animId = requestAnimationFrame(animateConfetti);
+      } else {
+        animId = null;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // ========== REVEAL LOGIC ==========
+    const teaser = document.getElementById("teaser");
+    const curtainL = document.getElementById("curtainL");
+    const curtainR = document.getElementById("curtainR");
+    const content = document.getElementById("content");
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+    const controls = document.getElementById("controls");
+    const nextBtn = document.getElementById("nextBtn");
+    const drumroll = document.getElementById("drumroll");
+    const startBtn = document.getElementById("startBtn");
+
+    let currentStep = 0; // 0 = teaser, 1 = result oficial, 2 = ranking
+
+    startBtn.addEventListener("click", startReveal);
+
+    function startReveal() {
+      startBtn.disabled = true;
+      startBtn.style.opacity = "0.6";
+
+      // Play drumroll
+      drumroll.currentTime = 0;
+      drumroll.play().catch(() => {});
+
+      // Hide teaser after short delay
+      setTimeout(() => {
+        teaser.classList.add("hidden");
+      }, 400);
+
+      // Open curtains
+      setTimeout(() => {
+        curtainL.classList.add("open");
+        curtainR.classList.add("open");
+      }, 700);
+
+      // Show first image + confetti
+      setTimeout(() => {
+        content.classList.add("visible");
+        img1.classList.add("active");
+        confettiBurst({ count: 220, x: 0.5, y: 0.35 });
+        // second smaller burst
+        setTimeout(() => confettiBurst({ count: 100, x: 0.3, y: 0.5 }), 300);
+        setTimeout(() => confettiBurst({ count: 100, x: 0.7, y: 0.5 }), 450);
+        controls.classList.add("show");
+        currentStep = 1;
+      }, 2400);
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (currentStep === 1) {
+        // Switch to ranking image
+        img1.classList.remove("active");
+        img2.classList.add("active");
+        confettiBurst({ count: 260, x: 0.5, y: 0.3, colors: ["#f5c518", "#ffd700", "#ffffff", "#ff6b6b", "#4a90d9"] });
+        setTimeout(() => confettiBurst({ count: 120, x: 0.25, y: 0.55 }), 250);
+        setTimeout(() => confettiBurst({ count: 120, x: 0.75, y: 0.55 }), 400);
+        nextBtn.textContent = "🎉  Fim da revelação";
+        nextBtn.classList.remove("primary");
+        currentStep = 2;
+      } else if (currentStep === 2) {
+        // Final celebration
+        confettiBurst({ count: 300, x: 0.5, y: 0.4 });
+        nextBtn.textContent = "Parabéns a todos!";
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = "0.7";
+      }
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        if (currentStep === 0) startReveal();
+        else if (currentStep >= 1) nextBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
