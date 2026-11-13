@@ -116,18 +116,17 @@
       width: 52%;
       height: 100%;
       z-index: 40;
-      background: linear-gradient(90deg, #1a0a2e 0%, #3d1558 40%, #5c1d7a 100%);
-      box-shadow: inset -20px 0 40px rgba(0,0,0,0.4);
+      box-shadow: inset -20px 0 40px rgba(0,0,0,0.45);
       transition: transform 2.2s cubic-bezier(0.65, 0, 0.35, 1);
     }
     .curtain.left {
       left: 0;
-      background: linear-gradient(90deg, #2a0a3d 0%, #4a1568 50%, #6b1f8a 100%);
+      background: linear-gradient(90deg, #5c0a0a 0%, #9b1b1b 35%, #c62828 70%, #e53935 100%);
       transform-origin: left center;
     }
     .curtain.right {
       right: 0;
-      background: linear-gradient(270deg, #2a0a3d 0%, #4a1568 50%, #6b1f8a 100%);
+      background: linear-gradient(270deg, #5c0a0a 0%, #9b1b1b 35%, #c62828 70%, #e53935 100%);
       transform-origin: right center;
     }
     /* folds / shine */
@@ -139,8 +138,8 @@
         90deg,
         transparent 0px,
         transparent 28px,
-        rgba(255,255,255,0.04) 28px,
-        rgba(255,255,255,0.04) 32px
+        rgba(255,255,255,0.07) 28px,
+        rgba(255,255,255,0.07) 32px
       );
       pointer-events: none;
     }
