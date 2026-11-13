@@ -264,8 +264,8 @@
 
     <!-- Content images -->
     <div id="content">
-      <img id="img1" src="10.png" alt="Resultado Oficial - Desafio de Ideias" />
-      <img id="img2" src="Destaque.png" alt="Prêmio Destaque - 1º 2º 3º lugar" />
+      <img id="img1" src="10.png?v=2" alt="Resultado Oficial - Desafio de Ideias" />
+      <img id="img2" src="Destaque.png?v=2" alt="Prêmio Destaque - 1º 2º 3º lugar" />
     </div>
 
     <!-- Controls -->
@@ -280,7 +280,9 @@
   <canvas id="confetti-canvas"></canvas>
 
   <!-- Audio -->
-  <audio id="drumroll" src="drumroll.mp3" preload="auto"></audio>
+  <audio id="drumroll" preload="auto">
+    <source src="drumroll.mp3" type="audio/mpeg" />
+  </audio>
 
   <script>
     // ========== CONFETTI ENGINE (lightweight) ==========
@@ -377,10 +379,21 @@
     function startReveal() {
       startBtn.disabled = true;
       startBtn.style.opacity = "0.6";
+      startBtn.textContent = "Abrindo cortinas...";
 
-      // Play drumroll
-      drumroll.currentTime = 0;
-      drumroll.play().catch(() => {});
+      // Play drumroll (must be triggered by user click)
+      const playAudio = () => {
+        drumroll.currentTime = 0;
+        const p = drumroll.play();
+        if (p && typeof p.then === "function") {
+          p.catch((err) => {
+            console.warn("Áudio bloqueado pelo navegador:", err);
+            // tenta de novo após um pequeno delay
+            setTimeout(() => drumroll.play().catch(() => {}), 200);
+          });
+        }
+      };
+      playAudio();
 
       // Hide teaser after short delay
       setTimeout(() => {
